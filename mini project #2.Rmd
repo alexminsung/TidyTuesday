@@ -1,0 +1,86 @@
+---
+title: 'mini project #2'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r setting up the data}
+library(tidyverse)
+library(ggtext)
+library(ghibli)
+library(magick)
+library(grid)
+
+bird_baths <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-08-31/bird_baths.csv')
+
+```
+
+```{r cleaning the data}
+
+#top 10 most commonly sighted birds
+commonBirds <- bird_baths %>% group_by(bird_type, urban_rural) %>% 
+  summarise(n = sum(bird_count)) %>% arrange(desc(n)) %>% na.omit()
+
+commonBirds <- commonBirds[1:10,]
+
+
+```
+```{r plotting the graph}
+col = ghibli_palette("KikiLight")
+col2 = ghibli_palette("KikiMedium")
+
+#bird images
+image = image_read("http://phylopic.org/assets/images/submissions/9f7d8da1-6f81-42dc-848c-4126e50c2bc6.64.png")
+miner <- rasterGrob(image, interpolate = TRUE)
+image = image_read("http://phylopic.org/assets/images/submissions/715f6434-de54-475b-9653-4b4db6864bdc.64.png")
+magpie <- rasterGrob(image, interpolate = TRUE)
+image = image_read("http://phylopic.org/assets/images/submissions/c71d7b97-9057-40cb-8df9-3bd103a7b0bf.64.png")
+lorikeet <- rasterGrob(image, interpolate = TRUE)
+image = image_read("http://phylopic.org/assets/images/submissions/91ffc54e-8a80-498a-8c6a-a93e0cd1339e.64.png")
+dove <- rasterGrob(image, interpolate = TRUE)
+image = image_read("http://phylopic.org/assets/images/submissions/32b14b84-f53c-4558-a832-12ea41f56f29.64.png")
+lark <- rasterGrob(image, interpolate = TRUE)
+image = image_read("http://phylopic.org/assets/images/submissions/3b985989-a3e7-4558-8030-e9bcf83ee64e.64.png")
+pied <- rasterGrob(image, interpolate = TRUE)
+image = image_read("http://phylopic.org/assets/images/submissions/52adef9e-6d59-46e8-9c3e-7fc593c55a42.64.png")
+wren <- rasterGrob(image, interpolate = TRUE)
+image = image_read("http://phylopic.org/assets/images/submissions/4f25df70-f5e0-410b-822c-a229e24d4546.64.png")
+myna <- rasterGrob(image, interpolate = TRUE) 
+
+commonBirds %>% ggplot() + geom_bar(aes(x = n, y = bird_type), fill = col2[2], stat = "identity") + expand_limits(x = c(0, 300)) +
+  ggtitle("Top 10 most common birds in Australia") + 
+  theme(
+    plot.title = element_text(face = "bold"),
+    plot.caption = element_blank(),
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.ticks.y = element_blank(),
+    #Removes the grid on the plot 
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(),
+    #fills the background colour based on choice
+    panel.background = element_rect(fill = col[6]),
+    plot.background = element_rect(fill=col[6], color = col[6]),
+    #places vertical lines over the x labels only
+    panel.grid.major.x = element_line(size = .1,color=col[4]),
+    #places border around the plot
+    panel.border = element_rect(colour = col2[1], fill=NA, size=0.4)) + 
+  #annotation custom lets to insert images onto the plot
+  annotation_custom(miner, xmin = 243, xmax = 248, ymin = 4, ymax = 6) + 
+  annotation_custom(magpie, xmin = 196, xmax = 201, ymin = 0, ymax = 2) + 
+  annotation_custom(lorikeet, xmin = 205, xmax = 210, ymin = 6, ymax = 8) + 
+  annotation_custom(dove, xmin = 145, xmax = 155, ymin = 8, ymax = 10) + 
+  annotation_custom(miner, xmin = 146, xmax = 151, ymin = 7, ymax = 9) + 
+  annotation_custom(lark, xmin = 132, xmax = 142, ymin = 3, ymax = 5) + 
+  annotation_custom(pied, xmin = 135, xmax = 145, ymin = 5, ymax = 7) + 
+  annotation_custom(wren, xmin = 112, xmax = 122, ymin = 9, ymax = 11) + 
+  annotation_custom(myna, xmin = 107, xmax = 115, ymin = 1, ymax = 3) + 
+  annotation_custom(dove, xmin = 107, xmax = 117, ymin = 2, ymax = 4)
+  
+
+
+```
